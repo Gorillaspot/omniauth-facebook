@@ -159,7 +159,7 @@ module OmniAuth
       def with_authorization_code!
         if request.params.key?('code')
           yield
-        elsif code_from_signed_request = signed_request && signed_request['code']
+        elsif code_from_signed_request = signed_request
           request.params['code'] = code_from_signed_request
           @authorization_code_from_signed_request = true
           begin
