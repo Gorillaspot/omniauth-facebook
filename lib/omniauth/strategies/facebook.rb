@@ -59,10 +59,19 @@ module OmniAuth
       def build_access_token
         if signed_request_contains_access_token?
           hash = signed_request.clone
+
+          if request.params["token"]
+            token = request.params["token"]
+            expires = request.params["expires"] or (Time.now + 1.day).to_i
+          else
+            token = hash.delete("oauth_token")
+            expires = hash.delete("expires")
+          end
+
           ::OAuth2::AccessToken.new(
             client,
-            hash.delete('oauth_token'),
-            hash.merge!(access_token_options.merge(:expires_at => hash.delete('expires')))
+            token,
+            hash.merge!(access_token_options.merge(:expires_at => expires))
           )
         else
           with_authorization_code! { super }.tap do |token|
@@ -146,8 +155,8 @@ module OmniAuth
       # https://developers.facebook.com/docs/authentication/canvas/
       #
       def signed_request_contains_access_token?
-        signed_request &&
-        signed_request['oauth_token']
+        (signed_request &&
+        signed_request['oauth_token']) || request.params[:token]
       end
 
       ##
