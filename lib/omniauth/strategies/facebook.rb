@@ -156,7 +156,7 @@ module OmniAuth
       #
       def signed_request_contains_access_token?
         (signed_request &&
-        signed_request['oauth_token']) || request.params[:token]
+        signed_request['oauth_token']) or request.params["token"]
       end
 
       ##
